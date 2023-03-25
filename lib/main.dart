@@ -3,7 +3,6 @@ import 'package:flutter_application_3/sign_up.dart';
 import 'package:flutter_application_3/splash.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'chat.dart';
-import 'home.dart';
 import 'login.dart';
 
 
@@ -27,9 +26,7 @@ class MainApp extends StatelessWidget {
       'chat':(context) {
         return ChatPage();
       },
-      '/home':(context){
-        return HomePage();
-      },
+     
       'splash':(context){
         return Splash_Animated();
       },
