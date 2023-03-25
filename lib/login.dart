@@ -99,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                           try {
                               
                               await  logIn();
-                              Navigator.pushNamed(context, 'chat');
+                              Navigator.pushNamed(context, 'chat',arguments: _mail);
                                 }
 
                                  on FirebaseAuthException catch (e) {

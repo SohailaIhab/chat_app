@@ -14,8 +14,10 @@ class _ChatPageState extends State<ChatPage> {
 
   CollectionReference message=FirebaseFirestore.instance.collection("Messages");
    TextEditingController txtControllesr=TextEditingController();
+   final controller=ScrollController();
   @override
   Widget build(BuildContext context) {
+ var email=  ModalRoute.of(context)!.settings.arguments;
     return  StreamBuilder<QuerySnapshot>(
       stream:message.orderBy('createdAt').snapshots() ,
       builder: (context,snapshot){
@@ -34,9 +36,11 @@ class _ChatPageState extends State<ChatPage> {
         children: [
          Expanded(
           child: ListView.builder(
+            controller: controller,
             itemCount: messageList.length,
           itemBuilder: (context,index){
-            return ChatBubble(txt: messageList[index],);
+            return messageList[index].id==email ? 
+            ChatBubble(txt: messageList[index],) : ChatBubble2(txt: messageList[index],);
             }),
             ), 
        Padding(padding:const EdgeInsets.all(16),
@@ -45,8 +49,14 @@ class _ChatPageState extends State<ChatPage> {
            onSubmitted: (value) {
              message.add({
               'Text':value,
-             'createdAt':DateTime.now()});
+             'createdAt':DateTime.now(),
+             'id':email});
              txtControllesr.clear();
+
+             controller.animateTo(
+              controller.position.maxScrollExtent, 
+              duration:const Duration(seconds: 1),
+              curve: Curves.fastOutSlowIn);
           },
           decoration: InputDecoration(
             hintText:"Send Message" ,
@@ -75,6 +85,28 @@ class ChatBubble extends StatelessWidget {
 final Message txt;
   @override
   Widget build(BuildContext context) {
+    return Align(alignment: Alignment.centerRight,
+      child: Container(    
+        padding:const EdgeInsets.only(left:16,top: 16,bottom: 16,right: 16),
+        margin:const EdgeInsets.all(16),
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.only(
+            topLeft:Radius.circular(30) ,
+            topRight: Radius.circular(30),
+            bottomLeft: Radius.circular(30)),
+          color:Color.fromRGBO(4,164,156,3)        ),
+        child: Text(txt.txt,style:GoogleFonts.ubuntu(
+               textStyle: const TextStyle(color: Colors.white,
+               fontSize: 20),),),
+       ),
+    );
+  }
+}
+class ChatBubble2 extends StatelessWidget {
+ const  ChatBubble2({ required this.txt    });
+final Message txt;
+  @override
+  Widget build(BuildContext context) {
     return Align(alignment: Alignment.centerLeft,
       child: Container(
        
@@ -86,7 +118,7 @@ final Message txt;
             topLeft:Radius.circular(30) ,
             topRight: Radius.circular(30),
             bottomRight: Radius.circular(30)),
-          color:Color.fromRGBO(4,164,156,3)        ),
+          color:Color.fromRGBO(4,99,91,1)        ),
         child: Text(txt.txt,style:GoogleFonts.ubuntu(
                textStyle: const TextStyle(color: Colors.white,
                fontSize: 20),),),
