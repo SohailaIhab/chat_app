@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import 'message_model.dart';
 class ChatPage extends StatefulWidget {
    ChatPage({super.key});
 
@@ -10,13 +12,18 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
 
-  CollectionReference Message=FirebaseFirestore.instance.collection("Messages");
+  CollectionReference message=FirebaseFirestore.instance.collection("Messages");
    TextEditingController txtControllesr=TextEditingController();
   @override
   Widget build(BuildContext context) {
-    return  FutureBuilder<DocumentSnapshot>(
-      future:Message.doc('TrRXiqTMN7jvphTO5x98').get() ,
+    return  StreamBuilder<QuerySnapshot>(
+      stream:message.orderBy('createdAt').snapshots() ,
       builder: (context,snapshot){
+        if(snapshot.hasData){
+          List<Message>messageList=[];
+          for(int i=0;i<snapshot.data!.docs.length;i++){
+            messageList.add(Message.fromJson(snapshot.data!.docs[i] ));
+          }
       return Scaffold(
       appBar: AppBar(backgroundColor: Color.fromRGBO(4,99,91,1),
         title: const Text("Chat"),
@@ -25,19 +32,27 @@ class _ChatPageState extends State<ChatPage> {
       ),
       body: Column(
         children: [
-         Expanded(child: ListView.builder(itemBuilder: (context,index){
-            return ChatBubble();}),), 
+         Expanded(
+          child: ListView.builder(
+            itemCount: messageList.length,
+          itemBuilder: (context,index){
+            return ChatBubble(txt: messageList[index],);
+            }),
+            ), 
        Padding(padding:const EdgeInsets.all(16),
          child: TextField(
           controller: txtControllesr,
            onSubmitted: (value) {
-             Message.add({'Text':value});
+             message.add({
+              'Text':value,
+             'createdAt':DateTime.now()});
              txtControllesr.clear();
           },
           decoration: InputDecoration(
             hintText:"Send Message" ,
             suffixIcon: IconButton(icon:Icon(Icons.send, color: Color.fromRGBO(4,99,91,1)), 
-            onPressed: () { Message.add({'Text':txtControllesr.text.toString() });
+            onPressed: () { 
+            message.add({'Text':txtControllesr.text.toString(),'createdAt':DateTime.now()});
              txtControllesr.clear(); },),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
@@ -50,15 +65,14 @@ class _ChatPageState extends State<ChatPage> {
           ],
       ),
     );
-    });
+    }else{return Text("Loading...");}
+    },);
   }
 }
 
 class ChatBubble extends StatelessWidget {
-  const ChatBubble({
-    super.key,
-  });
-
+ const  ChatBubble({ required this.txt    });
+final Message txt;
   @override
   Widget build(BuildContext context) {
     return Align(alignment: Alignment.centerLeft,
@@ -73,7 +87,7 @@ class ChatBubble extends StatelessWidget {
             topRight: Radius.circular(30),
             bottomRight: Radius.circular(30)),
           color:Color.fromRGBO(4,164,156,3)        ),
-        child: Text("I am a new user",style:GoogleFonts.ubuntu(
+        child: Text(txt.txt,style:GoogleFonts.ubuntu(
                textStyle: const TextStyle(color: Colors.white,
                fontSize: 20),),),
        ),
