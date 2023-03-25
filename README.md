@@ -1,3 +1,3 @@
-# flutter_application_3
+# chat_app
 
-A new Flutter project.
+A new Flutter project using firebase Authentication and cloud firestore 
