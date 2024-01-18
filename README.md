@@ -1,3 +1,5 @@
-# chat_app
+# Chat App Demo
 
-A new Flutter project using firebase Authentication and cloud firestore 
+![login](chatscreens/login.png)
+![signup](chatscreens/signup.png)
+![chat](chatscreens/chat.png)
